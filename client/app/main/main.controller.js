@@ -11,21 +11,19 @@ angular.module('angularZilyoApp').controller('MainCtrl', function ($http, $scope
   };
 
   $scope.refresh = function refresh(map) {
-    var countUrl = "/api/v1/listings/count",
-        bounds = map.getBounds(),
-        params = angular.extend({
-          nelatitude : bounds.O.j,
-          nelongitude : bounds.j.O,
-          swlatitude : bounds.O.O,
-          swlongitude : bounds.j.j,
-          resultsperpage : 5, // 10,
-          page : 1
-        });
+    var countUrl = "/api/v1/listings/count";
+    var bounds = map.getBounds();
+    var params = angular.extend({
+      nelatitude : bounds.O.j,
+      nelongitude : bounds.j.O,
+      swlatitude : bounds.O.O,
+      swlongitude : bounds.j.j,
+      resultsperpage : 5, // 10,
+      page : 1
+    });
 
     $http.get(countUrl + "?" + $scope.parameterize(params)).then(function(response) {
       var data = JSON.parse(response.data);
-
-      console.log(data.result.totalResults);
 
       for (var i = 1; i <= data.result.totalPages; i++) {
         $scope.fetch(angular.extend(params, { page : i }));
@@ -41,15 +39,25 @@ angular.module('angularZilyoApp').controller('MainCtrl', function ($http, $scope
 
     $http.get(baseUrl + "?" + $scope.parameterize(params)).then(function(response) {
 
-      var data = JSON.parse(response.data),
-          markers = _.map(data.result, function (result, index) {
-            console.log(result.attr);
-            return new google.maps.Marker({ 
-              "id" : result.id,
-              "title" : result.attr.heading,
-              "position" : new google.maps.LatLng(result.latLng[0], result.latLng[1])
-            });
-          });
+      var data = JSON.parse(response.data);
+      var markers = _.map(data.result, function (result, index) {
+        var infoWindow = new google.maps.InfoWindow({ content : result.attr.heading });
+        var marker = new google.maps.Marker({ 
+          "id" : result.id,
+          "title" : result.attr.heading,
+          "position" : new google.maps.LatLng(result.latLng[0], result.latLng[1])
+        });
+
+        marker.addListener("click", function () {
+          if (!!infoWindow.getMap()) {
+            infoWindow.close();
+          } else {
+            infoWindow.open($scope.map, marker);
+          }
+        });
+
+        return marker;
+      });
 
       $scope.markers = _.union($scope.markers, markers);
       $scope.markerClusterer = new MarkerClusterer($scope.map, $scope.markers, {});
@@ -60,7 +68,27 @@ angular.module('angularZilyoApp').controller('MainCtrl', function ($http, $scope
   };
 
   NgMap.getMap().then(function (map) {
-    map.addListener("bounds_changed", _.debounce($scope.refresh.bind(this, map), 1000))
+
+    var input = document.getElementById('pac-input');
+    var searchBox = new google.maps.places.SearchBox(input);
+    var markers = [];
+
+    map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
+    map.addListener("bounds_changed", _.debounce($scope.refresh.bind(this, map), 1000));
+    map.addListener('bounds_changed', function() { searchBox.setBounds(map.getBounds()); });
+
+    searchBox.addListener('places_changed', function() {
+      var places = searchBox.getPlaces();
+      var bounds = new google.maps.LatLngBounds();
+
+      if (places.length == 0) {
+        return;
+      }
+
+      places.forEach(function(place) { bounds.extend(place.geometry.location); });
+      map.fitBounds(bounds);
+    });
+
     $scope.refresh(map);
   });
 
