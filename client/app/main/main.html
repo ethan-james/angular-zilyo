@@ -1,4 +1,45 @@
 <div class="col-md-12">
   <input id="pac-input">
-  <ng-map center="[{{center.latitude}}, {{center.longitude}}]" id="map"></ng-map>
+  <ng-map zoom="17" center="[{{center.latitude}}, {{center.longitude}}]" id="map">
+    <custom-control id="filters" position="TOP_RIGHT" index="1">
+      <div>
+        <div class="input-group col-md-12">
+          <label for="guests" class="col-md-9 control-label">Minimum guests allowed</label>
+          <span class="col-md-3">
+            <input type="number" id="bedrooms" ng-model="params.numofbedrooms" class="form-control">
+          </span>
+        </div>
+        <div class="input-group col-md-12">
+          <label for="bedrooms" class="col-md-9 control-label">Minimum number of bedrooms</label>
+          <span class="col-md-3">
+            <input type="number" id="bedrooms" ng-model="params.numofbedrooms" class="form-control">
+          </span>
+        </div>
+        <div class="input-group col-md-12">
+          <label for="pricemax" class="col-md-6 control-label">
+            Provider
+          </label>
+          <span class="col-md-6">
+            <multiple-select ng-model="params.provider" options="providers"></multiple-select>
+          </span>
+        </div>
+        <div class="input-group col-md-12">
+          <label for="pricemax" class="col-md-6 control-label">
+            Maximum price per night: <b ng-show="params.pricemax">${{params.pricemax}}</b>
+          </label>
+          <span class="col-md-6">
+            <input type="range" id="pricemax" ng-model="params.pricemax" min="0" max="1000" step="5">
+          </span>
+        </div>
+        <div class="input-group col-md-12">
+          <label for="pricemin" class="col-md-6 control-label">
+            Minimum price per night: <b ng-show="params.pricemin">${{params.pricemin}}</b>
+          </label>
+          <span class="col-md-6">
+            <input type="range" id="pricemin" ng-model="params.pricemin" min="0" max="1000" step="5">
+          </span>
+        </div>
+      </div>
+    </custom-control>
+  </ng-map>
 </div>

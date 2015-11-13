@@ -1,0 +1,18 @@
+<div class="form-inline multiple-select">
+  <div class="form-group dropdown">
+    <div class="input-group">
+      <input ng-model="value" class="form-control">
+      <span class="input-group-addon">
+        <button data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="dropdown-toggle">
+          <i class="fa fa-caret-down"></i>
+        </button>
+      </span>
+    </div>
+    <ul class="dropdown-menu">
+      <li ng-repeat="option in options" class="col-md-12">
+        {{option | capitalize}}
+      </li>
+    </ul>
+  </div>
+</div>
+<!-- funsportsgear.com -->
