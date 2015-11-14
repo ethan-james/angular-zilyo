@@ -5,7 +5,7 @@ angular.module('angularZilyoApp').controller('MainCtrl', function ($http, $scope
   $scope.center = { latitude: 40.72911, longitude: -73.9517664 };
   $scope.zoom = 15;
 
-  $scope.params = { 
+  $scope.params = Object.create({ 
     guests : 1,
     numofbedrooms : 0,
     provider : null,
@@ -13,7 +13,7 @@ angular.module('angularZilyoApp').controller('MainCtrl', function ($http, $scope
     pricemax : 0,
     stimestamp : 0,
     etimestamp : 0
-  };
+  }, {});
 
   $scope.providers = ["airbnb", "alwaysonvacation", "apartmentsapart", "bedycasa", "bookingpal", "citiesreference", "edomizil", "geronimo", "gloveler", "holidayvelvet", "homeaway", "homestay", "hostelworld", "housetrip", "interhome", "nflats", "roomorama", "stopsleepgo", "theotherhome", "travelmob", "vacationrentalpeople", "vaycayhero", "waytostay", "webchalet", "zaranga"];
 
@@ -26,29 +26,87 @@ angular.module('angularZilyoApp').controller('MainCtrl', function ($http, $scope
     }, []).join("&");
   };
 
+  $scope.filters = Object.create({
+    guests : function (listing, param) {
+      return listing.guests >= param;
+    },
+    numofbedrooms : function (listing, param) {
+      return listing.numofbedrooms >= param;
+    },
+    pricemin : function (listing, param) {
+      return listing.nightly >= param;
+    },
+    pricemax : function (listing, param) {
+      return listing.nightly <= param;
+    },
+    provider : function (listing, param) {
+      if (!param || !param.length) {
+        return true;
+      }
+      return param.indexOf(listing.cid) !== -1;
+    }
+  }, {});
+
+  $scope.filterMarkers = function filter(results) {
+    return _.filter($scope.markers, function (result) {
+      return _.reduce($scope.params, function (accumulator, value, key) {
+        if ($scope.filters[key]) {
+          return accumulator && $scope.filters[key](result, $scope.params[key]);
+        }
+        return accumulator;
+      }, true);
+    });
+  };
+
+  $scope.difference = function difference(markers, exclude) {
+    return _.filter(markers, function (marker) {
+      return _.every(exclude, function (e) { return e.id !== marker.id; });
+    });
+  };
+
+  $scope.addMarkers = function addMarkers(markers) {
+    $scope.markers = $scope.markers.concat($scope.difference(markers, $scope.markers));
+  };
+
+  $scope.$watch("params", _.debounce(function (params) {
+    if ($scope.markerClusterer) {
+      $scope.updateMarkers($scope.delta());
+    }
+  }, 500), true);
+
+  $scope.updateMarkers = function updateMarkers(delta) {
+    $scope.markerClusterer.addMarkers(delta.add);
+    $scope.markerClusterer.removeMarkers(delta.remove);
+  };
+
+  $scope.delta = function delta(remove) {
+    var markers = $scope.markerClusterer.getMarkers();
+    var filtered = $scope.filterMarkers();
+
+    return {
+      add : $scope.difference(filtered, markers),
+      remove : (remove === false) ? [] : $scope.difference(markers, filtered)
+    };
+  };
+
   $scope.refresh = function refresh(map) {
     var countUrl = "/api/v1/listings/count";
     var bounds = map.getBounds();
-    var params = angular.extend($scope.params, {
+    var params = {
       nelatitude : bounds.O.j,
       nelongitude : bounds.j.O,
       swlatitude : bounds.O.O,
       swlongitude : bounds.j.j
-    });
+    };
 
     $http.get(countUrl + "?" + $scope.parameterize(params)).then(function(response) {
       var data = JSON.parse(response.data);
+
       $scope.markers = [];
 
-      if ($scope.markerClusterer) {
-        $scope.markerClusterer.clearMarkers();
-      } else {
-        $scope.markerClusterer = new MarkerClusterer(map, [], {});        
-      }
-
-      for (var i = 1; i <= data.result.totalPages; i++) {
-        $scope.fetch(angular.extend(params, { resultsperpage : 20, page : i }));
-      }
+      _.times(data.result.totalPages, function (i) {
+        return $scope.fetch(angular.extend(params, { resultsperpage : 20, page : i + 1 }));
+      });
 
     }, function(response) {
       console.log(response); // log error
@@ -61,28 +119,39 @@ angular.module('angularZilyoApp').controller('MainCtrl', function ($http, $scope
     $http.get(baseUrl + "?" + $scope.parameterize(params)).then(function(response) {
 
       var data = JSON.parse(response.data);
-      var markers = _.map(data.result, function (result, index) {
+
+      $scope.addMarkers(_.map(data.result, function (result, index) {
+
         var infoWindow = new google.maps.InfoWindow({ 
           content : result.attr.heading + " <b>$" + result.price.nightly + "</b> / night"
         });
-        var marker = new google.maps.Marker({ 
+
+        var marker = new google.maps.Marker({
           "id" : result.id,
           "title" : result.attr.heading,
-          "position" : new google.maps.LatLng(result.latLng[0], result.latLng[1])
+          "position" : new google.maps.LatLng(result.latLng[0], result.latLng[1]),
+          "guests" : result.attr.occupancy,
+          "numofbedrooms" : result.attr.bedrooms,
+          "nightly" : result.price.nightly,
+          "provider" : result.provider.cid
         });
 
-        // marker.addListener("click", function () {
-        //   if (!!infoWindow.getMap()) {
-        //     infoWindow.close();
-        //   } else {
-        //     infoWindow.open($scope.map, marker);
-        //   }
-        // });
+        marker.addListener("click", function () {
+          if (!!infoWindow.getMap()) {
+            infoWindow.close();
+          } else {
+            infoWindow.open($scope.map, marker);
+          }
+        });
 
         return marker;
-      });
+      }));
 
-      $scope.markerClusterer.addMarkers(markers);
+      if ($scope.markerClusterer) {
+        $scope.updateMarkers($scope.delta(false));
+      } else {
+        $scope.markerClusterer = new MarkerClusterer($scope.map, $scope.markers, {});        
+      }
 
     }, function(response) {
       console.log(response); // log error
