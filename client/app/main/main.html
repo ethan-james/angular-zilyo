@@ -1,8 +1,21 @@
 <div class="col-md-12">
-  <input id="pac-input">
+  <input id="pac-input" class="form-control">
   <ng-map zoom="17" center="[{{center.latitude}}, {{center.longitude}}]" id="map">
     <custom-control id="filters" position="TOP_RIGHT" index="1">
-      <div>
+      <div id="handle" class="clearfix">
+        <i class="fa fa-circle-o-notch pull-left" id="spinner" ng-show="loading"></i>
+        <span id="status">
+          <b>{{markers.length}}</b> listings
+          <span id="queue" ng-show="loading">(loading <b>{{loading}}</b>)</span>
+        </span>
+        <button aria-expanded="false" class="btn btn-primary pull-right" ng-show="!expanded" ng-click="expanded = true">
+          <i class="fa fa-caret-right"></i>
+        </button>
+        <button aria-expanded="false" class="btn btn-primary pull-right" ng-show="expanded" ng-click="expanded = false">
+          <i class="fa fa-caret-down"></i>
+        </button>
+      </div>
+      <div ng-show="expanded" id="panel">
         <div class="input-group col-md-12">
           <label for="guests" class="col-md-9 control-label">Minimum guests allowed</label>
           <span class="col-md-3">
@@ -25,7 +38,7 @@
         </div>
         <div class="input-group col-md-12">
           <label for="pricemax" class="col-md-6 control-label">
-            Maximum price per night: <b ng-show="params.pricemax">${{params.pricemax}}</b>
+            Maximum price per night: <b>${{params.pricemax}}</b>
           </label>
           <span class="col-md-6">
             <input type="range" id="pricemax" ng-model="params.pricemax" min="0" max="1000" step="5">
@@ -33,11 +46,19 @@
         </div>
         <div class="input-group col-md-12">
           <label for="pricemin" class="col-md-6 control-label">
-            Minimum price per night: <b ng-show="params.pricemin">${{params.pricemin}}</b>
+            Minimum price per night: <b>${{params.pricemin}}</b>
           </label>
           <span class="col-md-6">
             <input type="range" id="pricemin" ng-model="params.pricemin" min="0" max="1000" step="5">
           </span>
+        </div>
+        <div class="input-group col-md-12">
+          <div class="col-md-6">
+            <md-datepicker ng-model="params.stimestamp" md-placeholder="Check in date"></md-datepicker>
+          </div>
+          <div class="col-md-6">
+            <md-datepicker ng-model="params.etimestamp" md-placeholder="Check out date"></md-datepicker>
+          </div>
         </div>
       </div>
     </custom-control>

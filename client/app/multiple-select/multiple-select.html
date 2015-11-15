@@ -9,7 +9,9 @@
       </span>
     </div>
     <ul class="dropdown-menu">
-      <li ng-repeat="option in options" class="col-md-12">
+      <li ng-repeat="option in options" class="col-md-12" ng-click="toggle($event, option)">
+        <i class="fa fa-square-o" ng-show="!select[option]"></i>
+        <i class="fa fa-check-square-o" ng-show="select[option]"></i>
         {{option | capitalize}}
       </li>
     </ul>
