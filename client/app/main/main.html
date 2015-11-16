@@ -5,6 +5,7 @@
       <div id="handle" class="clearfix">
         <i class="fa fa-circle-o-notch pull-left" id="spinner" ng-show="loading"></i>
         <span id="status">
+          <span id="showing" ng-show="showing != markers.length">Showing <b>{{showing}}</b> of</span>
           <b>{{markers.length}}</b> listings
           <span id="queue" ng-show="loading">(loading <b>{{loading}}</b>)</span>
         </span>
@@ -61,6 +62,11 @@
           </div>
         </div>
       </div>
+    </custom-control>
+    <custom-control position="TOP_LEFT" index="2">
+      <a class="btn btn-success" href="//github.com/ethan-james/angular-zilyo" id="github" target="_blank">
+        <i class="fa fa-github"></i>
+      </a>
     </custom-control>
   </ng-map>
 </div>

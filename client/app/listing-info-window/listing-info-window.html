@@ -1,0 +1,11 @@
+<div class="listing-info-window">
+  <div>{{listing.attr.heading}} <b>${{listing.price.nightly}}</b> / night</div>
+  <div><img src="{{listing.photos[0].small}}" alt="{{listing.photos[0].caption}}"></div>
+  <div>
+    <b>Occupancy</b> {{listing.attr.occupancy}} guests,
+    <b>Bedrooms</b> {{listing.attr.bedrooms}},
+    <b>Bathrooms</b> {{listing.attr.bathrooms}}
+  </div>
+  <div><b>Amenities</b> {{amenities}}</div>
+  <div><a href="{{listing.provider.url}}" target="_blank">View Listing</a></div>
+</div>

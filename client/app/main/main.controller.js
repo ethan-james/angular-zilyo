@@ -1,8 +1,7 @@
 'use strict';
-angular.module('angularZilyoApp').controller('MainCtrl', function ($http, $scope, NgMap) {
+angular.module('angularZilyoApp').controller('MainCtrl', function ($http, $scope, NgMap, $compile) {
 
   $scope.map = null;
-  $scope.center = { latitude: 40.72911, longitude: -73.9517664 };
   $scope.zoom = 15;
   $scope.markers = [];
 
@@ -86,6 +85,7 @@ angular.module('angularZilyoApp').controller('MainCtrl', function ($http, $scope
   $scope.updateMarkers = function updateMarkers(delta) {
     $scope.markerClusterer.addMarkers(delta.add);
     $scope.markerClusterer.removeMarkers(delta.remove);
+    $scope.showing = $scope.markerClusterer.getTotalMarkers();
   };
 
   $scope.delta = function delta(remove) {
@@ -130,9 +130,9 @@ angular.module('angularZilyoApp').controller('MainCtrl', function ($http, $scope
       var data = JSON.parse(response.data);
 
       $scope.addMarkers(_.map(data.result, function (result, index) {
-        var infoWindow = new google.maps.InfoWindow({ 
-          content : result.attr.heading + " <b>$" + result.price.nightly + "</b> / night"
-        });
+        var infoWindow;
+        var scope = angular.extend($scope.$new(), { listing : result });
+        var $content = $compile('<listing-info-window listing="listing"></listing-info-window>')(scope);
 
         var marker = new google.maps.Marker({
           "id" : result.id,
@@ -146,9 +146,13 @@ angular.module('angularZilyoApp').controller('MainCtrl', function ($http, $scope
         });
 
         marker.addListener("click", function () {
-          if (!!infoWindow.getMap()) {
+          if (!!infoWindow && !!infoWindow.getMap()) {
             infoWindow.close();
           } else {
+            if (!infoWindow) {
+              infoWindow = new google.maps.InfoWindow({ content : $content[0] });
+            }
+
             infoWindow.open($scope.map, marker);
           }
         });
@@ -167,34 +171,38 @@ angular.module('angularZilyoApp').controller('MainCtrl', function ($http, $scope
     });
   };
 
-  NgMap.getMap().then(function (map) {
+  $scope.loadMap = function loadMap(lat, lng) {
+    $scope.center = { latitude : lat, longitude : lng };
 
-    var input = document.getElementById('pac-input');
-    var searchBox = new google.maps.places.SearchBox(input);
+    NgMap.getMap().then(function (map) {
 
-    map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
-    map.addListener("bounds_changed", _.debounce($scope.refresh.bind(this, map), 1000));
-    map.addListener('bounds_changed', function() { searchBox.setBounds(map.getBounds()); });
+      var input = document.getElementById('pac-input');
+      var searchBox = new google.maps.places.SearchBox(input);
 
-    searchBox.addListener('places_changed', function() {
-      var places = searchBox.getPlaces();
-      var bounds = new google.maps.LatLngBounds();
+      map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
+      map.addListener("bounds_changed", _.debounce($scope.refresh.bind(this, map), 1000));
+      map.addListener('bounds_changed', function() { searchBox.setBounds(map.getBounds()); });
 
-      if (places.length == 0) {
-        return;
-      }
+      searchBox.addListener('places_changed', function() {
+        var places = searchBox.getPlaces();
+        var bounds = new google.maps.LatLngBounds();
 
-      places.forEach(function(place) { bounds.extend(place.geometry.location); });
-      map.fitBounds(bounds);
+        if (places.length == 0) {
+          return;
+        }
+
+        places.forEach(function(place) { bounds.extend(place.geometry.location); });
+        map.fitBounds(bounds);
+        map.setZoom(17);
+      });
+
+      $scope.refresh(map);
     });
+  };
 
-    $scope.refresh(map);
+  navigator.geolocation.getCurrentPosition(function (position) {
+    $scope.loadMap(position.coords.latitude, position.coords.longitude);
+  }, function () {
+    $scope.loadMap(37.3175, -122.0419);
   });
-
-  // navigator.geolocation.getCurrentPosition(function (position) {
-  //   $scope.map.center.latitude = position.coords.latitude;
-  //   $scope.map.center.longitude = position.coords.longitude;
-  // }, function () {
-  //   alert("Cannot get current position.");
-  // });
 });
