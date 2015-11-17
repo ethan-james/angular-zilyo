@@ -3,14 +3,14 @@
   <ng-map zoom="17" center="[{{center.latitude}}, {{center.longitude}}]" id="map">
     <custom-control id="filters" position="TOP_RIGHT" index="1">
       <div id="handle" class="clearfix">
-        <i class="fa fa-circle-o-notch pull-left" id="spinner" ng-show="loading"></i>
+        <i class="fa fa-circle-o-notch pull-left spinner" id="spinner" ng-show="loading"></i>
         <span id="status">
           <span id="showing" ng-show="showing != markers.length">Showing <b>{{showing}}</b> of</span>
           <b>{{markers.length}}</b> listings
           <span id="queue" ng-show="loading">(loading <b>{{loading}}</b>)</span>
         </span>
         <button aria-expanded="false" class="btn btn-primary pull-right" ng-show="!expanded" ng-click="expanded = true">
-          <i class="fa fa-caret-right"></i>
+          <i class="fa fa-caret-left"></i>
         </button>
         <button aria-expanded="false" class="btn btn-primary pull-right" ng-show="expanded" ng-click="expanded = false">
           <i class="fa fa-caret-down"></i>
@@ -70,3 +70,4 @@
     </custom-control>
   </ng-map>
 </div>
+<div id="overlay" ng-show="!preloaded"><div class="spinner"><i class="fa fa-circle-o-notch"></i></div>

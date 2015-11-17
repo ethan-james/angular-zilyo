@@ -4,7 +4,7 @@ angular.module('angularZilyoApp')
   .config(function ($stateProvider) {
     $stateProvider
       .state('main', {
-        url: '/main',
+        url: '/',
         templateUrl: 'app/main/main.html',
         controller: 'MainCtrl'
       });

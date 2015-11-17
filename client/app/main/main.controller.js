@@ -176,6 +176,8 @@ angular.module('angularZilyoApp').controller('MainCtrl', function ($http, $scope
 
     NgMap.getMap().then(function (map) {
 
+      $scope.preloaded = true;
+
       var input = document.getElementById('pac-input');
       var searchBox = new google.maps.places.SearchBox(input);
 

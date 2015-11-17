@@ -10,8 +10,6 @@ angular.module('angularZilyoApp', [
   'ngMaterial'
 ])
   .config(function ($stateProvider, $urlRouterProvider, $locationProvider) {
-    $urlRouterProvider
-      .otherwise('/');
-
+    $urlRouterProvider.otherwise('/');
     $locationProvider.html5Mode(true);
   });
