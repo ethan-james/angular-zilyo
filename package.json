@@ -20,6 +20,7 @@
     "method-override": "~1.0.0",
     "morgan": "~1.0.0",
     "serve-favicon": "~2.0.1",
+    "time-grunt": "^1.2.2",
     "unirest": "^0.4.2"
   },
   "devDependencies": {
