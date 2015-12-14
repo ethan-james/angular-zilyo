@@ -1,73 +1,76 @@
 <div class="col-md-12">
   <input id="pac-input" class="form-control">
-  <ng-map zoom="17" center="[{{center.latitude}}, {{center.longitude}}]" id="map">
-    <custom-control id="filters" position="TOP_RIGHT" index="1">
-      <div id="handle" class="clearfix">
-        <i class="fa fa-circle-o-notch pull-left spinner" id="spinner" ng-show="loading"></i>
-        <span id="status">
-          <span id="showing" ng-show="showing != markers.length">Showing <b>{{showing}}</b> of</span>
-          <b>{{markers.length}}</b> listings
-          <span id="queue" ng-show="loading">(loading <b>{{loading}}</b>)</span>
+
+  <div id="filters">
+    <div id="handle" class="clearfix">
+      <i class="fa fa-circle-o-notch pull-left spinner" id="spinner" ng-show="main.loading"></i>
+      <span id="status">
+        <span id="showing" ng-show="main.showing != main.markers.length">Showing <b>{{main.showing}}</b> of</span>
+        <b>{{markers.length}}</b> listings
+        <span id="queue" ng-show="main.loading">(loading <b>{{main.loading}}</b>)</span>
+      </span>
+      <button aria-expanded="false" class="btn btn-primary pull-right" ng-show="!expanded" ng-click="expanded = true">
+        <i class="fa fa-caret-left"></i>
+      </button>
+      <button aria-expanded="false" class="btn btn-primary pull-right" ng-show="expanded" ng-click="expanded = false">
+        <i class="fa fa-caret-down"></i>
+      </button>
+    </div>
+    <div ng-show="expanded" id="panel">
+      <div class="input-group col-md-12">
+        <label for="guests" class="col-md-9 control-label">Minimum guests allowed</label>
+        <span class="col-md-3">
+          <input type="number" id="bedrooms" ng-model="main.params.guests" class="form-control">
         </span>
-        <button aria-expanded="false" class="btn btn-primary pull-right" ng-show="!expanded" ng-click="expanded = true">
-          <i class="fa fa-caret-left"></i>
-        </button>
-        <button aria-expanded="false" class="btn btn-primary pull-right" ng-show="expanded" ng-click="expanded = false">
-          <i class="fa fa-caret-down"></i>
-        </button>
       </div>
-      <div ng-show="expanded" id="panel">
-        <div class="input-group col-md-12">
-          <label for="guests" class="col-md-9 control-label">Minimum guests allowed</label>
-          <span class="col-md-3">
-            <input type="number" id="bedrooms" ng-model="params.guests" class="form-control">
-          </span>
+      <div class="input-group col-md-12">
+        <label for="bedrooms" class="col-md-9 control-label">Minimum number of bedrooms</label>
+        <span class="col-md-3">
+          <input type="number" id="bedrooms" ng-model="main.params.numofbedrooms" class="form-control">
+        </span>
+      </div>
+      <div class="input-group col-md-12">
+        <label for="pricemax" class="col-md-6 control-label">
+          Provider
+        </label>
+        <span class="col-md-6">
+          <multiple-select ng-model="main.params.provider" options="main.providers"></multiple-select>
+        </span>
+      </div>
+      <div class="input-group col-md-12">
+        <label for="pricemax" class="col-md-6 control-label">
+          Maximum price per night: <b>${{main.params.pricemax}}</b>
+        </label>
+        <span class="col-md-6">
+          <input type="range" id="pricemax" ng-model="main.params.pricemax" min="0" max="1000" step="5">
+        </span>
+      </div>
+      <div class="input-group col-md-12">
+        <label for="pricemin" class="col-md-6 control-label">
+          Minimum price per night: <b>${{main.params.pricemin}}</b>
+        </label>
+        <span class="col-md-6">
+          <input type="range" id="pricemin" ng-model="main.params.pricemin" min="0" max="1000" step="5">
+        </span>
+      </div>
+      <div class="input-group col-md-12">
+        <div class="col-md-6">
+          <md-datepicker ng-model="main.params.stimestamp" md-placeholder="Check in date"></md-datepicker>
         </div>
-        <div class="input-group col-md-12">
-          <label for="bedrooms" class="col-md-9 control-label">Minimum number of bedrooms</label>
-          <span class="col-md-3">
-            <input type="number" id="bedrooms" ng-model="params.numofbedrooms" class="form-control">
-          </span>
-        </div>
-        <div class="input-group col-md-12">
-          <label for="pricemax" class="col-md-6 control-label">
-            Provider
-          </label>
-          <span class="col-md-6">
-            <multiple-select ng-model="params.provider" options="providers"></multiple-select>
-          </span>
-        </div>
-        <div class="input-group col-md-12">
-          <label for="pricemax" class="col-md-6 control-label">
-            Maximum price per night: <b>${{params.pricemax}}</b>
-          </label>
-          <span class="col-md-6">
-            <input type="range" id="pricemax" ng-model="params.pricemax" min="0" max="1000" step="5">
-          </span>
-        </div>
-        <div class="input-group col-md-12">
-          <label for="pricemin" class="col-md-6 control-label">
-            Minimum price per night: <b>${{params.pricemin}}</b>
-          </label>
-          <span class="col-md-6">
-            <input type="range" id="pricemin" ng-model="params.pricemin" min="0" max="1000" step="5">
-          </span>
-        </div>
-        <div class="input-group col-md-12">
-          <div class="col-md-6">
-            <md-datepicker ng-model="params.stimestamp" md-placeholder="Check in date"></md-datepicker>
-          </div>
-          <div class="col-md-6">
-            <md-datepicker ng-model="params.etimestamp" md-placeholder="Check out date"></md-datepicker>
-          </div>
+        <div class="col-md-6">
+          <md-datepicker ng-model="main.params.etimestamp" md-placeholder="Check out date"></md-datepicker>
         </div>
       </div>
-    </custom-control>
-    <custom-control position="TOP_LEFT" index="2">
-      <a class="btn btn-success" href="//github.com/ethan-james/angular-zilyo" id="github" target="_blank">
-        <i class="fa fa-github"></i>
-      </a>
-    </custom-control>
-  </ng-map>
+    </div>
+  </div>
+
+  <div id="github-wrapper">
+    <a class="btn btn-success" href="//github.com/ethan-james/angular-zilyo" id="github" target="_blank">
+      <i class="fa fa-github"></i>
+    </a>
+  </div>
+
+  <div id="map"></div>
+  
 </div>
-<div id="overlay" ng-show="!preloaded"><div class="spinner"><i class="fa fa-circle-o-notch"></i></div>
+<div id="overlay" ng-show="!main.preloaded"><div class="spinner"><i class="fa fa-circle-o-notch"></i></div>

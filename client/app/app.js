@@ -6,7 +6,6 @@ angular.module('angularZilyoApp', [
   'ngSanitize',
   'ui.router',
   'ui.bootstrap',
-  'ngMap',
   'ngMaterial'
 ])
   .config(function ($stateProvider, $urlRouterProvider, $locationProvider) {
