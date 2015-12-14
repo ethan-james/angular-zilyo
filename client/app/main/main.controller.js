@@ -1,6 +1,6 @@
 'use strict';
 
-var MainCtrl = function MainCtrl($scope, $compile, googleMap, zilyo, Marker, RESULT_FILTERS) {
+function MainCtrl($scope, $compile, googleMap, zilyo, Marker, RESULT_FILTERS) {
   this.markers = [];
   this.map = googleMap;
   this.zilyo = zilyo;
@@ -83,7 +83,7 @@ var MainCtrl = function MainCtrl($scope, $compile, googleMap, zilyo, Marker, RES
   };
 };
 
-MainCtrl.prototype.filterMarkers = function filter(results) {
+MainCtrl.prototype.filterMarkers = function filterMarkers(results) {
   return _.filter(this.markers, function (result) {
     return _.reduce(this.params, function (accumulator, value, key) {
       if (this.filters[key]) {
