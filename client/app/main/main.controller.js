@@ -1,6 +1,6 @@
 'use strict';
 
-var MainCtrl = function MainCtrl($scope, $compile, googleMap, zilyo, RESULT_FILTERS) {
+var MainCtrl = function MainCtrl($scope, $compile, googleMap, zilyo, Marker, RESULT_FILTERS) {
   this.markers = [];
   this.map = googleMap;
   this.zilyo = zilyo;
@@ -56,7 +56,7 @@ var MainCtrl = function MainCtrl($scope, $compile, googleMap, zilyo, RESULT_FILT
         var infoWindow;
         var scope = angular.extend($scope.$new(), { listing : result });
         var $content = $compile('<listing-info-window listing="listing"></listing-info-window>')(scope);
-        var marker = this.createMarker(result);
+        var marker = Marker.create(result);
 
         marker.addListener("click", _.bind(function () {
           if (!!infoWindow && !!infoWindow.getMap()) {
@@ -81,19 +81,6 @@ var MainCtrl = function MainCtrl($scope, $compile, googleMap, zilyo, RESULT_FILT
       this.loading = this.loading - data.result.length;
     }
   };
-};
-
-MainCtrl.prototype.createMarker = function createMarker(json) {
-  return new google.maps.Marker({
-    "id" : json.id,
-    "title" : json.attr.heading,
-    "position" : new google.maps.LatLng(json.latLng[0], json.latLng[1]),
-    "guests" : json.attr.occupancy,
-    "numofbedrooms" : json.attr.bedrooms,
-    "nightly" : json.price.nightly,
-    "provider" : json.provider.cid,
-    "availability" : json.availability
-  });
 };
 
 MainCtrl.prototype.filterMarkers = function filter(results) {
@@ -146,5 +133,5 @@ MainCtrl.prototype.refresh = function refresh() {
   }, this.callbacks, this);
 };
 
-MainCtrl.$inject = ["$scope", "$compile", "googleMap", "zilyo", "RESULT_FILTERS"];
+MainCtrl.$inject = ["$scope", "$compile", "googleMap", "zilyo", "Marker", "RESULT_FILTERS"];
 angular.module('angularZilyoApp').controller('MainCtrl', MainCtrl);
