@@ -126,9 +126,9 @@ MainCtrl.prototype.refresh = function refresh() {
   var bounds = this.map.getBounds();
 
   this.zilyo.refresh({
-    nelatitude : bounds.O.j,
-    nelongitude : bounds.j.O,
-    swlatitude : bounds.O.O,
+    nelatitude : bounds.N.j,
+    nelongitude : bounds.j.N,
+    swlatitude : bounds.N.N,
     swlongitude : bounds.j.j
   }, this.callbacks, this);
 };
