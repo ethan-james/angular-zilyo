@@ -124,12 +124,14 @@ MainCtrl.prototype.delta = function delta(remove) {
 
 MainCtrl.prototype.refresh = function refresh() {
   var bounds = this.map.getBounds();
+  var ne = bounds.getNorthEast();
+  var sw = bounds.getSouthWest();
 
   this.zilyo.refresh({
-    nelatitude : bounds.N.j,
-    nelongitude : bounds.j.N,
-    swlatitude : bounds.N.N,
-    swlongitude : bounds.j.j
+    nelatitude : ne.lat(),
+    nelongitude : ne.lng(),
+    swlatitude : sw.lat(),
+    swlongitude : sw.lng()
   }, this.callbacks, this);
 };
 
