@@ -2,7 +2,7 @@
 
 angular.module('angularZilyoApp').service('zilyo', function ($http, $filter) {
 
-  var fetch = function fetch(url, params, callbacks, context) {
+  function fetch(url, params, callbacks, context) {
     $http.get(url + "?" + $filter("parameterize")(params)).then(function(response) {
       if (callbacks && typeof callbacks.onFetch == "function") {
         callbacks.onFetch.call(context, JSON.parse(response.data));
@@ -10,14 +10,9 @@ angular.module('angularZilyoApp').service('zilyo', function ($http, $filter) {
     }, function(response) {
       console.log(response); // log error
     });
-  };
+  }
 
-  var Zilyo = function Zilyo() {  
-    this.baseUrl = "/api/v1/listings";
-    this.countUrl = "/api/v1/listings/count";
-  };
-
-  Zilyo.prototype.refresh = function refresh(params, callbacks, context) {
+  function refresh(params, callbacks, context) {
     var baseUrl = this.baseUrl;
 
     $http.get(this.countUrl + "?" + $filter("parameterize")(params)).then(function(response) {
@@ -28,13 +23,23 @@ angular.module('angularZilyoApp').service('zilyo', function ($http, $filter) {
       }
 
       _.times(data.result.totalPages, function (i) {
-        return fetch(baseUrl, angular.extend(params, { resultsperpage : 20, page : i + 1 }), callbacks, context);
+        return fetch(baseUrl, angular.extend(params, {
+          resultsperpage : 20,
+          page : i + 1
+        }), callbacks, context);
       });
 
     }, function(response) {
       console.log(response); // log error
     });
+  }
+
+  var Zilyo = function Zilyo() {  
+    this.baseUrl = "/api/v1/listings";
+    this.countUrl = "/api/v1/listings/count";
   };
+
+  Zilyo.prototype.refresh = refresh;
 
   return new Zilyo();
 });
